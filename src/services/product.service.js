@@ -8,8 +8,11 @@ async function createProduct(data) {
 
 async function getProducts() {
   return await prisma.product.findMany({
-    orderBy: {
-      createdAt: "desc",
+      include: {
+        category: true,
+      },
+      orderBy: {
+        createdAt: "desc",
     },
   });
 }
@@ -18,6 +21,9 @@ async function getProductById(id) {
   return await prisma.product.findUnique({
     where: {
       id,
+    },
+    include: {
+      category: true,
     },
   });
 }
