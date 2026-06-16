@@ -8,11 +8,11 @@ datasource db {
 }
 
 model Category {
-  id        String   @id @default(uuid())
-  name      String
-  slug      String   @unique
+  id   String @id @default(uuid())
+  name String
+  slug String @unique
 
-  products  Product[]
+  products Product[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -21,34 +21,114 @@ model Category {
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  sku         String   @unique
+  id          String  @id @default(uuid())
+  sku         String  @unique
   name        String
-  slug        String   @unique
+  slug        String  @unique
   description String?
   price       Decimal
   weight      Int
-  status      Boolean  @default(true)
+  status      Boolean @default(true)
 
-  imageUrl    String?
+  imageUrl String?
 
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  carts Cart[]
+
+  orderItems OrderItem[]
 
   @@map("products")
 }
 
 model Admin {
-  id          String   @id @default(uuid())
-  name        String  
-  email       String   @unique
-  password    String
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("admins")
+}
+
+model Customer {
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  password String
+  phone    String?
+  address  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  carts    Cart[]
+  orders   Order[]
+}
+
+model Cart {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity Int @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("carts")
+}
+
+model Order {
+  id String @id @default(uuid())
+  customerId String
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  totalAmount Decimal
+
+  status OrderStatus @default(PENDING)	
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+
+  quantity Int
+
+  price Decimal
+
+  createdAt DateTime @default(now())
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }

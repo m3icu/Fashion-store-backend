@@ -25,7 +25,7 @@ function authMiddleware(req, res, next) {
       process.env.JWT_SECRET
     );
 
-    req.admin = decoded;
+    req.user = decoded;
 
     next();
   } catch (error) {

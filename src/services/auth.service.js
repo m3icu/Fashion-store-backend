@@ -41,6 +41,26 @@ async function login(email,password) {
   };
 }
 
+async function getMe(adminId) {
+  const admin = await prisma.admin.findUnique({
+    where: {
+      id: adminId,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  });
+
+  if (!admin) {
+    throw new Error("Admin tidak ditemukan");
+  }
+
+  return admin;
+}
+
 module.exports = {
   login,
+  getMe,
 };

@@ -1,12 +1,49 @@
 const productService = require("../services/product.service");
 
+async function uploadImage(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Image is required",
+      });
+     }
+    
+     const imageUrl =
+       `${req.protocol}://${req.get("host")}/uploads/products/${req.file.filename}`;
+
+     res.status(200).json({
+       success: true,
+       imageUrl,
+     });
+   } catch (error) {
+     res.status(500).json({
+       success: false,
+       message: error.message,
+     });
+   }
+  }
+
 async function getProducts(req, res) {
   try {
-    const products = await productService.getProducts();
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = req.query.search || "";
+    const category = req.query.category || "";
+    const sort = req.query.sort || "newest";
+
+    const result = await productService.getProducts(
+      page,
+      limit,
+      search,
+      category,
+      sort
+    );
 
     res.json({
       success: true,
-      data: products,
+      data: result.products,
+      pagination :result.pagination,
     });
   } catch (error) {
     console.error(error);
@@ -106,10 +143,40 @@ async function deleteProduct(req, res) {
   }
 }
 
+async function updateProductImage(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Image is required",
+      });
+    }
+
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/products/${req.file.filename}`;
+    
+    const product = 
+      await productService.updateProductImage(
+        req.params.id,
+        imageUrl
+      );
+
+    res.json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
 module.exports = {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
+  uploadImage,
+  updateProductImage,
 };
