@@ -14,6 +14,10 @@ const dashboardRoutes = require("./src/routes/dashboard.routes");
 const customerRoutes = require("./src/routes/customer.routes");
 const cartRoutes = require("./src/routes/cart.routes");
 const orderRoutes = require("./src/routes/order.routes");
+const {
+  swaggerUi,  
+  specs,
+} = require("./src/docs/swagger");
 
 const app = express();
 
@@ -43,6 +47,11 @@ app.use('/dashboard', dashboardRoutes);
 app.use("/customers", customerRoutes);
 app.use("/cart", cartRoutes);
 app.use("/orders",orderRoutes);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs)
+);
 
 app.use(errorHandler);
 

@@ -11,6 +11,18 @@ const {
   updateProductSchema,
 } = require("../validators/product.validator");
 
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Get all products
+ *     tags:
+ *       - Products
+ *     responses:
+ *       200:
+ *         description: list of products
+ */
+
 router.get("/", productController.getProducts);
 router.get("/:id", productController.getProductById);
 
