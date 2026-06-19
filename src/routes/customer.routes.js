@@ -168,7 +168,7 @@ router.delete(
 //LOGIN CUSTOMER
 /**
  * @swagger
- * /custmoers/Login:
+ * /customers/Login:
  *   post:
  *     summary: Customer Login
  *     tags:

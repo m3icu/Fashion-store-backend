@@ -19,7 +19,7 @@ const {
 
 /**
  * @swagger
- * /auth/Login:
+ * /auth/login:
  *   post:
  *     summary: Admin Login
  *     tags:

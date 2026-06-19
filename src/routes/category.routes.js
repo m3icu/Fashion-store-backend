@@ -133,7 +133,7 @@ router.put(
  * @swagger
  * /categories/{id}:
  *   delete:
- *     summary: Delete categories
+ *     summary: Delete category
  *     tags:
  *       - Categories
  *     security:
