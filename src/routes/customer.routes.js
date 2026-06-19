@@ -12,6 +12,21 @@ const {
 );
 
 //CREATE CUSTOMER
+/**
+ * @swagger
+ * /customers:
+ *   post:
+ *     summary: Create customer
+ *     tags:
+ *       - Customers
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Customer created successfully
+ *       401:
+ *         description: Authorized
+ */
 router.post(
   "/",
   authMiddleware,
@@ -19,6 +34,21 @@ router.post(
 );
 
 //GET ALL CUSTOMERS
+/**
+ * @swagger
+ * /customers:
+ *   get:
+ *     summary: Get all customers
+ *     tags:
+ *       - Customers
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Customers retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ */
 router.get(
   "/",
   authMiddleware,
@@ -26,6 +56,21 @@ router.get(
 );
 
 //GET ME
+/**
+ * @swagger
+ * /customers/me:
+ *   get:
+ *     summary: Get current customer profile
+ *     tags:
+ *       - Customers
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Customer profile retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ */
 router.get(
   "/me",
   customerAuth,
@@ -33,6 +78,27 @@ router.get(
 );
 
 //GET CUSTOMER BY ID
+/**
+ * @swagger
+ * /customers/{id}:
+ * get:
+ *   summary: Get customer by ID
+ *   tags:
+ *     - Customers
+ *   security:
+ *     - bearerAuth: []
+ *   parameters:
+ *     - in: path
+ *       name: id
+ *       required: true
+ *       schema:
+ *         type: string
+ *   responses:
+ *     200:
+ *       description: Customer found
+ *     404:
+ *       description: Customer not found
+ */
 router.get(
   "/:id",
   authMiddleware,
@@ -40,6 +106,29 @@ router.get(
 );
 
 //UPDATE CUSTOMER
+/** 
+ * @swagger
+ * /customers/{id}:
+ *   put:
+ *     summary: Update customer
+ *     tags:
+ *       - Customers
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200: 
+ *         description: Customer updated successfully
+ *       404:
+ *         description: Customer not found
+ *       401:
+ *         description: Unauthorized
+ */
 router.put(
   "/:id",
   authMiddleware,
@@ -47,6 +136,29 @@ router.put(
 );
 
 //DELETE CUSTOMER
+/**
+ * @swagger
+ * /customers/{id}:
+ *   delete:
+ *     summary: Delete cuatomer
+ *     tags:
+ *       - Customers
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer deleted successfully
+ *       404:
+ *         description: Customer not found
+ *       401:
+ *         description: Unauthorized
+ */
 router.delete(
   "/:id",
   authMiddleware,
@@ -54,6 +166,37 @@ router.delete(
 );
 
 //LOGIN CUSTOMER
+/**
+ * @swagger
+ * /custmoers/Login:
+ *   post:
+ *     summary: Customer Login
+ *     tags:
+ *       - Customers
+ *     requestedBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             requiered:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: customer@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       200:
+ *         description: Login successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Invalid credentials
+ */
 router.post(
   "/login",
   validate(loginSchema),
