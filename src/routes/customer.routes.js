@@ -25,7 +25,7 @@ const {
  *       200:
  *         description: Customer created successfully
  *       401:
- *         description: Authorized
+ *         description: Unauthorized
  */
 router.post(
   "/",
@@ -81,23 +81,23 @@ router.get(
 /**
  * @swagger
  * /customers/{id}:
- * get:
- *   summary: Get customer by ID
- *   tags:
- *     - Customers
- *   security:
- *     - bearerAuth: []
- *   parameters:
- *     - in: path
- *       name: id
- *       required: true
- *       schema:
- *         type: string
- *   responses:
- *     200:
- *       description: Customer found
- *     404:
- *       description: Customer not found
+ *   get:
+ *     summary: Get customer by ID
+ *     tags:
+ *       - Customers
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer found
+ *       404:
+ *         description: Customer not found
  */
 router.get(
   "/:id",
@@ -140,7 +140,7 @@ router.put(
  * @swagger
  * /customers/{id}:
  *   delete:
- *     summary: Delete cuatomer
+ *     summary: Delete customer
  *     tags:
  *       - Customers
  *     security:
@@ -168,18 +168,18 @@ router.delete(
 //LOGIN CUSTOMER
 /**
  * @swagger
- * /customers/Login:
+ * /customers/login:
  *   post:
  *     summary: Customer Login
  *     tags:
  *       - Customers
- *     requestedBody:
+ *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             requiered:
+ *             required:
  *               - email
  *               - password
  *             properties:
@@ -191,7 +191,7 @@ router.delete(
  *                 example: password123
  *     responses:
  *       200:
- *         description: Login successfully
+ *         description: Login successful
  *       400:
  *         description: Validation error
  *       401:
