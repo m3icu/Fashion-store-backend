@@ -103,6 +103,13 @@ async function getProductById(id) {
 }
 
 async function updateProduct(id, data) {
+  if (data.name) {
+    data.slug = slugify(data.name, {
+      lower: true,
+      strict: true,
+    });
+  }
+
   return await prisma.product.update({
     where: {
       id,

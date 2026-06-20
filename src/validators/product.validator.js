@@ -19,12 +19,17 @@ const createProductSchema = Joi.object({
     .positive()
     .required(),
 
-  weight: Joi.number()
+  stock: Joi.number()
     .integer()
     .min(0)
     .required(),
 
-  status: Joi.boolean()
+  weight: Joi.number()
+    .integer()
+    .min(0)
+    .optional(),
+
+  isActive: Joi.boolean()
     .optional(),
 
   imageUrl: Joi.string()
@@ -33,8 +38,8 @@ const createProductSchema = Joi.object({
   
   categoryId: Joi.string()
     .uuid()
-    .optional()
-    .allow(null),
+    .required(),
+    
 });
 
 const updateProductSchema = Joi.object({
@@ -52,11 +57,15 @@ const updateProductSchema = Joi.object({
   price: Joi.number()
     .positive(),
 
-  weight: Joi.number()
+  stock: Joi.number()
     .integer()
     .min(0),
 
-  status: Joi.boolean(),
+  weight: Joi.number()
+    .integer()
+    .min(0),
+   
+  isActive: Joi.boolean(),
 
   imageUrl: Joi.string()
     .uri(),

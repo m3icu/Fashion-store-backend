@@ -27,20 +27,21 @@ model Product {
   slug        String  @unique
   description String?
   price       Decimal
-  weight      Int
-  status      Boolean @default(true)
+  stock       Int     @default(0)
+  weight      Int     @default(0)
+  isActive    Boolean @default(true)
 
   imageUrl String?
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   carts Cart[]
 
   orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("products")
 }

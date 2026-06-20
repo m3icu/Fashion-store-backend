@@ -10,6 +10,7 @@ const {
   createProductSchema,
   updateProductSchema,
 } = require("../validators/product.validator");
+const uploadExcel = require("../middlewares/excel-upload.middleware");
 
 /**
  * @swagger
@@ -86,6 +87,58 @@ router.post(
   authMiddleware,
   upload.single("image"),
   productController.uploadImage);
+
+/**
+ * @swagger
+ * /products/import:
+ *   post:
+ *     summary: Import products from Excel
+ *     tags:
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *                - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Product imported successfully
+ */
+router.post(
+  "/import",
+  authMiddleware,
+  uploadExcel.single("file"),
+  productController.importProducts);
+
+/**
+ * @swagger
+ * /products/import/commit:
+ *   post:
+ *     summary: Commit imported products
+ *     tags:
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *     responses:
+ *       200:
+ *         description: Import committed successfully
+ */
+router.post(
+  "/import/commit",
+  authMiddleware,
+  productController.commitImportController
+);
 
 /**
  * @swagger

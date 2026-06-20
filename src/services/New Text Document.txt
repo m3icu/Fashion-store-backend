@@ -1,0 +1,56 @@
+const prisma = require("../lib/prisma");
+const slugify = require("slugify");
+
+async function previewImport(rows) {
+  const validProducts = [];
+  const errors = [];
+ 
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+
+    try {
+      const category = await prisma.category.findUnique({
+        where: {
+          slug: rwo.categorySlug,
+        ),
+      });
+
+      if (!category) {
+        throw new Error(
+          'Category `${row.categoryS;ug}` not found'
+        );
+      }
+
+      const slug = slugify(row.name, {
+        lower: true,
+        strict: true,
+      });
+
+      validProducts.push({
+        sku: row.sku,
+        name: row.name,
+        slug,
+        description: row.description,
+        price: Number(row.price),
+        stock: Number(row.stock),
+        weight: Number(row.weight),
+        categoryId: category.id,
+      });
+    } catch (error) {
+      errors.push({
+        row: i + 2,
+        message: error.message,
+      });
+    }
+  }
+
+  return {
+    totalRows: rows.length
+    validProducts,
+    errors,
+  };
+}
+
+module.exports = {
+  previesImport,
+};

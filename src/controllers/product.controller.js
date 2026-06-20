@@ -1,4 +1,6 @@
 const productService = require("../services/product.service");
+const XLSX = require("xlsx");
+const productImportService = require("../services/product-import.service");
 
 async function uploadImage(req, res) {
   try {
@@ -22,7 +24,7 @@ async function uploadImage(req, res) {
        message: error.message,
      });
    }
-  }
+}
 
 async function getProducts(req, res) {
   try {
@@ -171,6 +173,46 @@ async function updateProductImage(req, res) {
     });
   }
 }
+
+async function importProducts(req, res) {
+  try {
+    const workbook = XLSX.readFile(req.file.path);
+    const sheetName = workbook.SheetNames[0];
+    const rows = XLSX.utils.sheet_to_json(
+      workbook.Sheets[sheetName]
+    );
+    const result = await productImportService.previewImport(rows);
+    
+    return res.status(200).json({
+      success: true,
+      ...result,
+    });
+
+  } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+  
+async function commitImportController(req, res, next) {
+  try {
+    const { validProducts } = req.body;
+    
+    const result = await productImportService.commitImport(validProducts);
+   
+    return res.status(200).json({
+      success: true,
+      message: "Import committed successfully",
+      data: result,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getProducts,
   getProductById,
@@ -179,4 +221,6 @@ module.exports = {
   deleteProduct,
   uploadImage,
   updateProductImage,
+  importProducts,
+  commitImportController,
 };
