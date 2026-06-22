@@ -1,5 +1,8 @@
 const XLSX = require("xlsx");
-
+const {
+  validateBasicProduct,
+  validateVariant,
+} = require("./shopee-validation.service");
 /**
  * =========================
  * BASIC FILE PARSER
@@ -111,15 +114,57 @@ function buildVariantProducts(basicRows, salesMap) {
   const errors = [];
 
   for (const row of basicRows) {
-    const productId = String(row.kodeProduk || "").trim();
-    if (!productId) continue;
 
-    const variants = salesMap.get(productId);
+    //VALIDATE BASIC
+    const basicCheck = validateBasicProduct(row);
+    
+    if (!basicCheck.valid) {
+      errors.push({
+        productId: row.kodeProduk,
+        stage: "basic",
+        errors: basicCheck.errors,
+      });
+      continue;
+    }
 
+    const productId = row.kodeProduk;
+    let variants = salesMap.get(productId);
+
+    //HANDLE SINGLE PRODUCT (NO VARIANT CASE)
     if (!variants || variants.length === 0) {
+      variants = [
+        {
+          variantName: "DEFAULT",
+          sku: productId,
+          price: 0,
+          stock: 1,
+        },
+      ];
+    }
+   
+    //VALIDATE VARIANTS
+    const validVariants = [];
+    const variantErrors = [];
+
+    for (const v of variants) {
+      const check = validateVariant(v);
+
+      if (!check.valid) {
+        variantErrors.push({
+          productId,
+          variant: v,
+          errors: check.errors,
+        });
+        continue;
+      }
+     
+      validVariants.push(v);
+    }
+    if (validVariants.length === 0) {
       errors.push({
         productId,
-        message: "No variant found",
+        stage: "variant",
+        message: "All variants invalid",
       });
       continue;
     }
@@ -128,7 +173,7 @@ function buildVariantProducts(basicRows, salesMap) {
       productId,
       name: row.namaProduk,
       description: row.deskripsi,
-      variants,
+      variants: validVariants,
     });
   }
 
