@@ -22,28 +22,44 @@ model Category {
 
 model Product {
   id          String  @id @default(uuid())
-  sku         String  @unique
   name        String
   slug        String  @unique
   description String?
-  price       Decimal
-  stock       Int     @default(0)
+  imageUrl    String?
   weight      Int     @default(0)
   isActive    Boolean @default(true)
-
-  imageUrl String?
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id])
 
-  carts Cart[]
+  variants ProductVariant[]
 
-  orderItems OrderItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Cart      Cart[]
+  OrderItem OrderItem[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id String @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  sku String @unique
+
+  variantName String?
+
+  price Decimal
+
+  stock Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("products")
+  @@map("product_variants")
 }
 
 model Admin {
@@ -69,8 +85,8 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  carts    Cart[]
-  orders   Order[]
+  carts  Cart[]
+  orders Order[]
 }
 
 model Cart {
@@ -91,13 +107,13 @@ model Cart {
 }
 
 model Order {
-  id String @id @default(uuid())
+  id         String   @id @default(uuid())
   customerId String
-  customer Customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
 
   totalAmount Decimal
 
-  status OrderStatus @default(PENDING)	
+  status OrderStatus @default(PENDING)
 
   items OrderItem[]
 
@@ -111,10 +127,10 @@ model OrderItem {
   id String @id @default(uuid())
 
   orderId String
-  order Order @relation(fields: [orderId], references: [id])
+  order   Order  @relation(fields: [orderId], references: [id])
 
   productId String
-  product Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 
   quantity Int
 

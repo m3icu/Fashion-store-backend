@@ -1,4 +1,5 @@
 const XLSX = require("xlsx");
+const slugify = require("slugify");
 const {
   validateBasicProduct,
   validateVariant,
@@ -122,6 +123,7 @@ function buildVariantProducts(basicRows, salesMap) {
       errors.push({
         productId: row.kodeProduk,
         stage: "basic",
+        isValid: false,
         errors: basicCheck.errors,
       });
       continue;
@@ -174,6 +176,8 @@ function buildVariantProducts(basicRows, salesMap) {
       name: row.namaProduk,
       description: row.deskripsi,
       variants: validVariants,
+
+      isValid: true,
     });
   }
 

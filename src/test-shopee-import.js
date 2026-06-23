@@ -28,4 +28,14 @@ console.log("SALES SAMPLE:");
 console.log(sales1[0]);
 console.log("TOTAL PRODUCT:", result.totalProducts);
 console.log("TOTAL ERROR:", result.totalErrors);
-console.log(result.products.slice(0, 3));
+console.dir(result, {
+  depth: null,
+});
+//console.log(result.products.slice(0, 3));
+console.log(
+  JSON.stringify(
+    result.products[0],
+    null,
+    2
+  )
+);
