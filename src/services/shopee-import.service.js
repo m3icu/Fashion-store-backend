@@ -1,5 +1,5 @@
 const XLSX = require("xlsx");
-const slugify = require("slugify");
+//const slugify = require("slugify");
 const {
   validateBasicProduct,
   validateVariant,
@@ -76,6 +76,40 @@ function parseSalesExcel(filePath) {
 
 /**
  * =========================
+ * SHIPPING FILE PARSER
+ * =========================
+ */
+function parseShippingExcel(filePath) {
+  const workbook = XLSX.readFile(filePath);
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+  const rows = XLSX.utils.sheet_to_json(sheet, {
+    header: 1,
+    defval: "",
+  });
+  
+  const dataRows = rows.filter((row) => {
+    const kodeProduk = row[0];
+  
+    if (!kodeProduk) return false;
+    if (String(kodeProduk).includes("et_title")) return false;
+    if (kodeProduk === "Kode Produk") return false;
+
+    return /^\d+$/.test(String(kodeProduk));
+   });
+
+   return dataRows.map((row) => ({
+     kodeProduk: String(row[0]).trim(),
+
+     berat: Number(row[5] || 0),
+     panjang: Number(row[6] || 0),
+     lebar: Number(row[7] || 0),
+     tinggi: Number(row[8] || 0),
+   }));
+ }
+
+/**
+ * =========================
  * BUILD SALES MAP
  * =========================
  */
@@ -107,10 +141,41 @@ function buildSalesMap(salesRows) {
 
 /**
  * =========================
+ * BUILD SHIPPING MAP
+ * =========================
+ */
+function buildShippingMap(shippingRows) {
+  const shippingMap = new Map();
+
+  for (const row of shippingRows) {
+    if (!shippingMap.has(row.kodeProduk)) {
+      shippingMap.set(
+        row.kodeProduk,
+        {
+          weight: row.berat,
+          length: row.panjang,
+          width: row.lebar,
+          height: row.tinggi,
+        }
+      );
+    }
+  }
+
+  return shippingMap;
+
+}
+
+/**
+ * =========================
  * BUILD VARIANT PRODUCTS
  * =========================
  */
-function buildVariantProducts(basicRows, salesMap) {
+function buildVariantProducts(
+    basicRows,  
+    salesMap,
+    shippingMap
+)
+{
   const products = [];
   const errors = [];
 
@@ -170,11 +235,17 @@ function buildVariantProducts(basicRows, salesMap) {
       });
       continue;
     }
+    
+    const shipping =
+      shippingMap?.get(productId);
 
     products.push({
       productId,
       name: row.namaProduk,
       description: row.deskripsi,
+
+      weight: shipping?.weight || 0,
+     
       variants: validVariants,
 
       isValid: true,
@@ -189,12 +260,19 @@ function buildVariantProducts(basicRows, salesMap) {
  * MAIN ENGINE
  * =========================
  */
-function buildShopeeVariants(basicRows, salesRows) {
-  const salesMap = buildSalesMap(salesRows);
+function buildShopeeVariants(
+  basicRows,  
+  salesRows,
+  shippingRows = []
+) 
 
+{
+  const salesMap = buildSalesMap(salesRows);
+  const shippingMap = buildShippingMap(shippingRows);
   const { products, errors } = buildVariantProducts(
     basicRows,
-    salesMap
+    salesMap,
+    shippingMap
   );
 
   return {
@@ -213,7 +291,10 @@ function buildShopeeVariants(basicRows, salesRows) {
 module.exports = {
   parseBasicExcel,
   parseSalesExcel,
+  parseShippingExcel,
+
   buildSalesMap,
+  buildShippingMap,
   buildVariantProducts,
   buildShopeeVariants,
 };

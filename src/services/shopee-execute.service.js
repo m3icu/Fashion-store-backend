@@ -1,74 +1,90 @@
-const prisma = require("../lib/prisma");
-const slugify = require("slugify");
+// 1. PRODUCT UPSERT
+await prisma.$transaction(async (tx) => {
+let productId;
 
-  
-/**
- * EXECUTE SHOPEE IMPORT -> DATABASE
- */
+if (!existingProduct) {
+const createdProduct = await tx.product.create({
+data: {
+name: product.name,
+description: product.description || "",
+slug,
+weight: product.weight || 0,
+},
+});
 
-async function executeShopeeImport(previewResult) {
-  const { products } = previewResult;
+```
+productId = createdProduct.id;
 
-  const validProducts = products.filter((p) => p.isValid);
+summary.productsCreated++;
 
-  const sampleProducts = validProducts.slice(0, 5);
+productMap.set(slug, {
+  id: createdProduct.id,
+  slug,
+});
+```
 
-  const summary = {
-    totalInput: products.length,
-    totalValid: validProducts.length,
-    totalCreated: 0,
-    errors: [],
-  };
+} else {
+await tx.product.update({
+where: {
+id: existingProduct.id,
+},
+data: {
+name: product.name,
+description: product.description || "",
+weight: product.weight || 0,
+},
+});
 
-  try {
-    for (const product of sampleProducts) {   
-      await prisma.$transaction(async (tx) => {
-        try {
-          //1. CREATE PRODUCT
-          const createdProduct = await tx.product.create({
-            data: {
-              name: product.name,
-              description: product.description || "",
-              slug: slugify(
-                `${product.name}-${product.productId}` , 
-                {
-                  lower: true,
-                  strict: true,
-                }
-              ),
-            },
-         });
+```
+productId = existingProduct.id;
 
-          //2. CREATE VARIANTS (bulk)
-          const variantData = product.variants.map((v) => ({
-            productId: createdProduct.id,
-            sku: v.sku,
-            variantName: v.variantName,
-            price: v.price || 0,
-            stock: v.stock || 0,
-          }));
+summary.productsUpdated++;
+```
 
-          await tx.productVariant.createMany({
-            data: variantData,
-            //skipDuplicates: true,
-          });
-
-          summary.totalCreated++;
-        } catch (err) {
-          summary.errors.push({
-            productId: product.productId,
-            message: err.message,
-          });
-        }
-      });
-    }
-
-    return summary;
-  } catch (err) {
-    throw new Error("Execute Import Failed: " + err.message);
-  }
 }
 
-module.exports = {
-  executeShopeeImport,
-};
+// 2. VARIANT UPSERT
+for (const variant of product.variants) {
+const existingVariant = variantMap.get(
+variant.sku
+);
+
+```
+if (!existingVariant) {
+  const createdVariant =
+    await tx.productVariant.create({
+      data: {
+        productId,
+        sku: variant.sku,
+        variantName: variant.variantName,
+        price: variant.price || 0,
+        stock: variant.stock || 0,
+      },
+    });
+
+  variantMap.set(
+    variant.sku,
+    {
+      id: createdVariant.id,
+      sku: createdVariant.sku,
+    }
+  );
+
+  summary.variantsCreated++;
+} else {
+  await tx.productVariant.update({
+    where: {
+      id: existingVariant.id,
+    },
+    data: {
+      price: variant.price || 0,
+      stock: variant.stock || 0,
+    },
+  });
+
+  summary.variantsUpdated++;
+}
+```
+
+}
+});
