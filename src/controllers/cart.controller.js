@@ -10,13 +10,13 @@ async function addToCart(req, res, next) {
     const cart = 
       await cartService.addToCart({
         customerId,
-        productId: req.body.productId,
+        variantId: req.body.variantId,
         quantity: req.body.quantity,
     });
 
     res.status(201).json({
       success: true,
-      message: "Product added to cart",
+      message: "Variant added to cart",
       data: cart,
     });
 

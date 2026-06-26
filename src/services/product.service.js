@@ -51,18 +51,6 @@ async function getProducts(
     };
   }
 
-  if (sort === "price_asc") {
-    orderBy = {
-      price: "asc",
-    };
-  }
-
-  if (sort === "price_desc") {
-    orderBy = {
-      price: "desc",
-    };
-  }
- 
   console.log("SORT =", sort);
   console.log("ORDERBY =", orderBy);
 
@@ -72,6 +60,11 @@ async function getProducts(
       take: limit,
       include: {
         category: true,
+        variants: {
+          orderBy: {
+            sku: "asc",
+          },
+        },
       },
       orderBy,
   });
@@ -98,6 +91,11 @@ async function getProductById(id) {
     },
     include: {
       category: true,
+      variants: {
+        orderBy: {
+          sku: "asc",
+        },
+      },
     },
   });
 }

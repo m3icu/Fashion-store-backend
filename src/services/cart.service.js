@@ -4,7 +4,7 @@ const prisma = require("../lib/prisma")
 async function addToCart(data) {
   const {
     customerId,
-    productId,
+    variantId,
     quantity,
   } = data;
 
@@ -18,19 +18,22 @@ async function addToCart(data) {
   }
 
   //cek product
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-  });
+  const variant =
+    await prisma.productVariant.findUnique({
+      where: {
+        id: variantId,
+      },
+    });
 
-  if (!product) {
-    throw new Error("Product not found");
+  if (!variant) {
+    throw new Error("Variant not found");
   }
 
   //cek item sudah ada di cart
   const existingCart = await prisma.cart.findFirst({
     where: {
       customerId,
-      productId,
+      variantId,
     },
   });
 
@@ -49,7 +52,7 @@ async function addToCart(data) {
   return await prisma.cart.create({
     data: {
       customerId,
-      productId,
+      variantId,
       quantity,
     },
   });
@@ -62,12 +65,15 @@ async function getCartByCustomer(customerId) {
       customerId,
     },
     include: {
-      product: {
-        select: {
-          id: true,
-          name: true,
-          price: true,
-          imageUrl: true,
+      variant: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+            },
+          },
         },
       },
     },
@@ -81,7 +87,11 @@ async function getCart(customerId) {
       customerId,
     },
     include: {
-      product: true,
+      variant: {
+        include: {
+          product: true,
+        },
+      },
     },
   });
 }
@@ -111,7 +121,11 @@ async function updateCartItem(cartId, customerId, quantity) {
       quantity,
     },
     include: {
-      product: true,
+      variant: {
+        include: {
+          product: true,
+        },
+      },
     },
   });
 
@@ -141,7 +155,7 @@ async function removeCartItem(
     where: {
       id: cartId,
     },
-  });
+  })
 
   return true;
 }
@@ -153,7 +167,7 @@ async function getCartSummary(customerId) {
       customerId,
     },
     include: {
-      product: true,
+      variant: true,
     },
   });
 
@@ -165,7 +179,7 @@ async function getCartSummary(customerId) {
   const subtotal = cartItems.reduce(
     (sum, item) => 
         sum + 
-        Number(item.product.price) *
+        Number(item.variant.price) *
         item.quantity,
      0
   );
