@@ -26,7 +26,7 @@ async function getMe(req, res) {
   try {
     const admin = 
       await authService.getMe(
-        req.admin.id
+        req.user.id
       );
 
     res.json({

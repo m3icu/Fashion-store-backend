@@ -1,26 +1,37 @@
-const dashboardService = require(
-  "../services/dashboard.service"
-);
+const dashboardService = require("../services/dashboard.service");
 
-async function getDashboardStats(req, res) {
+async function getStatistics(req, res, next) {
   try {
-    const stats = 
-      await dashboardService.getDashboardStats();
+    const statistics =
+      await dashboardService.getStatistics();
 
-    res.json({
+    res.status(200).json({
       success: true,
-      data: stats,
+      data: statistics,
     });
   } catch (error) {
-    console.error(error);
-  
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 }
 
+async function getRecentOrders(req, res, next) {
+  try {
+    const recentOrders = 
+      await dashboardService.getRecentOrders();
+
+    res.status(200).json({
+      success: true,
+      data: recentOrders,
+    });
+
+   } catch (error) {
+     next(error);
+   }
+}
+
 module.exports = {
-  getDashboardStats,
+  getStatistics,
+  getRecentOrders,
 };
+
+      
